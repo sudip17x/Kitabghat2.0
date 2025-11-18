@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  mysql:
+    image: mysql:8
+    container_name: kitabghar2-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: kitabghar
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+
+  backend:
+    build: ./backend
+    container_name: kitabghar_backend
+    env_file: ./backend/.env
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mysql
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: kitabghar_frontend
+    ports:
+      - "8085:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
